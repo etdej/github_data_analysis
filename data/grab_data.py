@@ -10,14 +10,24 @@ import utils
 import shutil
 
 
-def download_extract_save(base_path, url):
+def download_extract_save(base_path, url, skip_if_exists=False):
     """ Very dense "do-everything" function """
-    raw_data_ls = get_raw_data(url)
-    output = extract_data(raw_data_ls)
     date_str = url.split("/")[-1].replace(".json.gz", "")
     output_path = os.path.join(base_path, date_str)
+    tar_path = output_path + ".tar.gz"
+
+    if os.path.exists(tar_path):
+        if skip_if_exists:
+            print(f"Skipping {tar_path}", )
+            return
+        else:
+            raise RuntimeError(f"{tar_path} exists")
+
+    raw_data_ls = get_raw_data(url)
+    output = extract_data(raw_data_ls)
+
     save_csvs(output, output_path)
-    utils.save_fol_to_gzip(output_path + ".tar.gz", output_path)
+    utils.save_fol_to_gzip(tar_path, output_path)
     shutil.rmtree(output_path)
 
 
@@ -104,9 +114,7 @@ def save_csvs(data_output, output_fol):
     save_path_ls = []
     for event_type, event_dict in data_output.items():
         for key, df in event_dict.items():
-            save_path = os.path.join(output_fol, "{}-{}.csv".format(
-                event_type, key
-            ))
+            save_path = os.path.join(output_fol, f"{event_type}-{key}.csv")
             df.to_csv(save_path)
             save_path_ls.append(save_path)
     return save_path_ls
