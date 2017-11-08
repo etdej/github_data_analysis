@@ -104,7 +104,9 @@ def save_csvs(data_output, output_fol):
     save_path_ls = []
     for event_type, event_dict in data_output.items():
         for key, df in event_dict.items():
-            save_path = os.path.join(output_fol, f"{event_type}-{key}.csv")
+            save_path = os.path.join(output_fol, "{}-{}.csv".format(
+                event_type, key
+            ))
             df.to_csv(save_path)
             save_path_ls.append(save_path)
     return save_path_ls
