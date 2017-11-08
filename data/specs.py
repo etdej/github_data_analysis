@@ -39,7 +39,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "pull_request", "user", "login"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
         ("payload", "pull_request", "base", "repo"),
         ("payload", "pull_request", "head", "repo"),
     ],
@@ -114,7 +113,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "pull_request", "user", "login"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
         ("payload", "pull_request", "base", "repo"),
         ("payload", "pull_request", "head", "repo"),
     ],
@@ -128,7 +126,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "distinct_size"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 
@@ -139,7 +136,7 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "forkee", "name"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
+        ("payload", "forkee"),
     ],
 })
 
@@ -151,7 +148,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "member", "login"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 
@@ -170,7 +166,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "issue", "comments"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 
@@ -193,7 +188,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "comment", "updated_at"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 
@@ -220,7 +214,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "action"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 
@@ -233,7 +226,6 @@ EVENT_EXTRACTION_DEF_LS.append({
         ("payload", "pusher_type"),
     ],
     "repo_loc_ls": [
-        ("repo", ),
     ],
 })
 

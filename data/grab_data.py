@@ -1,10 +1,24 @@
 import collections as col
 import gzip
 import json
+import os
 import pandas as pd
 import urllib.request
 
 import specs
+import utils
+import shutil
+
+
+def download_extract_save(base_path, url):
+    """ Very dense "do-everything" function """
+    raw_data_ls = get_raw_data(url)
+    output = extract_data(raw_data_ls)
+    date_str = url.split("/")[-1].replace(".json.gz", "")
+    output_path = os.path.join(base_path, date_str)
+    save_csvs(output, output_path)
+    utils.save_fol_to_gzip(output_path + ".tar.gz", output_path)
+    shutil.rmtree(output_path)
 
 
 def get_raw_data(url):
@@ -28,7 +42,7 @@ def collect_specs(nested_dictionary, spec_ls):
     for spec in spec_ls:
         spec_name = ".".join(spec)
         try:
-            main_datum[spec_name] = chain_ix(nested_dictionary, spec)
+            main_datum[spec_name] = utils.chain_ix(nested_dictionary, spec)
         except (KeyError, TypeError):
             main_datum[spec_name] = None
             spec_error_ls.append(spec_name)
@@ -49,13 +63,14 @@ def extract_data_from_raw_data(raw_data_ls, event_extract_def):
         )
         for repo_loc in event_extract_def["repo_loc_ls"]:
             try:
-                repo_datum = collect_specs(
-                    nested_dictionary=chain_ix(raw_datum, repo_loc),
+                repo_datum, repo_error_ls = collect_specs(
+                    nested_dictionary=utils.chain_ix(raw_datum, repo_loc),
                     spec_ls=specs.REPO_SPEC_LS,
                 )
                 repo_data.append(repo_datum)
+                spec_error_ls += repo_error_ls
             except (KeyError, TypeError):
-                spec_error_ls.append(repo_loc)
+                spec_error_ls.append(".".join(repo_loc))
         for spec_name in spec_error_ls:
             all_errors.append({
                 "id": raw_datum.get("id"),
@@ -84,10 +99,36 @@ def extract_data(raw_data_ls):
     return extracted_dict
 
 
-def chain_ix(nested_dictionary, key_ls):
-    """ Chain index a nested dictionary """
-    x = nested_dictionary
-    for key in key_ls:
-        x = x[key]
-    return x
+def save_csvs(data_output, output_fol):
+    os.makedirs(output_fol, exist_ok=True)
+    save_path_ls = []
+    for event_type, event_dict in data_output.items():
+        for key, df in event_dict.items():
+            save_path = os.path.join(output_fol, f"{event_type}-{key}.csv")
+            df.to_csv(save_path)
+            save_path_ls.append(save_path)
+    return save_path_ls
+
+
+#def save_csvs_and_gzip(data_output, remove_csvs=False):
+
+
+
+def load_csvs(output_fol):
+    data_dict = col.OrderedDict()
+    for file_name in os.listdir(output_fol):
+        if ".csv" not in file_name:
+            continue
+        df = pd.read_csv(os.path.join(output_fol, file_name), index_col=0)
+        event_type, key = file_name.replace(".csv", "").split("-")
+        if event_type not in data_dict:
+            data_dict[event_type] = dict()
+        data_dict[event_type][key] = df
+    return data_dict
+
+
+
+
+
+
 
