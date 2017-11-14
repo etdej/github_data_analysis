@@ -1,16 +1,11 @@
-
-# coding: utf-8
-
-# In[85]:
-
-# %load sample.py
 import pandas as pd
 import numpy as np
+import tarfile
+import tqdm
 import os
+import shutil
 from functools import reduce
 
-
-# In[147]:
 
 def preprocess_file(path, verbose=False, final_type=np.uint64):
     ## PullRequest
@@ -89,31 +84,23 @@ def preprocess_file(path, verbose=False, final_type=np.uint64):
     return df_final
 
 
-# In[148]:
-
-def extract_preprocess_save(date, path, outpath):
-    tmp = "tmp/"
+def extract_preprocess_save(date, path, out_path):
+    if os.path.exists(out_path + date +'.csv'): return
+    tmp = "/tmp/"
     tar_path = path + date + ".tar.gz"
-    tar = tarfile.open(tar_path)
-    tar.extractall(tmp)
-    tar.close()    
+    with tarfile.open(tar_path) as tar:
+        tar.extractall(tmp)
     extracted_path = tmp + date + "/"
     df = preprocess_file(extracted_path, verbose=False, final_type=np.uint64)
-    df.to_csv(outpath + date +'.csv')
+    df.to_csv(out_path + date +'.csv')
+    shutil.rmtree(extracted_path)
 
-extract_preprocess_save('2015-02-01', "/Users/etienne/Dropbox/NYU/DS-GA1001-IntroToDSc/project/sample_data/", "out/")
-
-
-# In[149]:
 
 def preprocess(start_date, end_date, path, out_path):
     dates = [d.strftime('%Y-%m-%d') for d in pd.date_range(start_date, end_date)]
-    for date in dates :
-        extract_preprocess_save(date, "/Users/etienne/Dropbox/NYU/DS-GA1001-IntroToDSc/project/sample_data/", 
-                        out_path)
+    for date in tqdm.tqdm(dates):
+        extract_preprocess_save(date, path, out_path)
 
-
-# In[152]:
 
 if __name__ == "__main__":
     import time
@@ -121,9 +108,3 @@ if __name__ == "__main__":
     preprocess('2015-02-01', '2015-02-01', "/Users/etienne/Dropbox/NYU/DS-GA1001-IntroToDSc/project/sample_data/", "out/")
     t2 = time.time()
     print(t2 - t1)
-
-
-# In[ ]:
-
-
-

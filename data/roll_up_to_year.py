@@ -9,7 +9,7 @@ import shutil
 CSV_LS = [
     f"{event_type}-{data_type}.csv"
     for event_type in [
-        "CreateEvent", "ForkEvent", "IssueCommentEvent", "IssuesEvent"
+        "CreateEvent", "ForkEvent", "IssueCommentEvent", "IssuesEvent",
         "MemberEvent", "PullRequestEvent", "PullRequestReviewCommentEvent",
         "PushEvent", "WatchEvent",
     ]
@@ -23,7 +23,7 @@ def get_datetime(path):
 
 def roll_up_hourly_data_to_daily(hourly_fol, temp_fol, daily_fol):
     # Get DF of tars
-    tar_ls = glob.glob(os.path.join(hourly_fol, "*/*.tar.gz")
+    tar_ls = glob.glob(os.path.join(hourly_fol, "*/*.tar.gz"))
     df = pd.DataFrame({"path": tar_ls})
     df.index = df["path"].apply(get_datetime)
     df = df.sort_index()
@@ -50,12 +50,12 @@ def roll_up_hourly_data_to_daily(hourly_fol, temp_fol, daily_fol):
             combined_df = pd.concat(csv_df_ls).reset_index(drop=True)
             combined_df.to_csv(os.path.join(temp_fol, day_fol, csv_filename))
 
-        with tarfile.open(os.path.join(daily_fol, day_str) + ".tar.gz", "w:gz") as tar:
+        with tarfile.open(os.path.join(daily_fol, day_str) + ".tar.gz", "w:gz") \
+                as tar:
             tar.add(day_fol, arcname=os.path.basename(day_fol))
 
         shutil.rmtree(temp_fol)
         os.makedirs(temp_fol)
-
 
 
 if __name__ == "__main__":
