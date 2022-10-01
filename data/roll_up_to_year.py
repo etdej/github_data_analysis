@@ -34,7 +34,26 @@ def roll_up_hourly_data_to_daily(hourly_fol, temp_fol, daily_fol):
         print(ts)
         for path in path_srs:
             with tarfile.open(path) as tar:
-                tar.extractall(temp_fol)
+                def is_within_directory(directory, target):
+                    
+                    abs_directory = os.path.abspath(directory)
+                    abs_target = os.path.abspath(target)
+                
+                    prefix = os.path.commonprefix([abs_directory, abs_target])
+                    
+                    return prefix == abs_directory
+                
+                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+                
+                    for member in tar.getmembers():
+                        member_path = os.path.join(path, member.name)
+                        if not is_within_directory(path, member_path):
+                            raise Exception("Attempted Path Traversal in Tar File")
+                
+                    tar.extractall(path, members, numeric_owner) 
+                    
+                
+                safe_extract(tar, temp_fol)
 
         day_str = ts.strftime("%Y-%m-%d")
         day_fol = os.path.join(temp_fol, day_str)
