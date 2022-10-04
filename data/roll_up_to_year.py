@@ -50,7 +50,7 @@ def roll_up_hourly_data_to_daily(hourly_fol, temp_fol, daily_fol):
                         if not is_within_directory(path, member_path):
                             raise Exception("Attempted Path Traversal in Tar File")
                 
-                    tar.extractall(path, members, numeric_owner) 
+                    tar.extractall(path, members, numeric_owner=numeric_owner) 
                     
                 
                 safe_extract(tar, temp_fol)
